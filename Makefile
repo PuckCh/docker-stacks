@@ -4,6 +4,8 @@
 
 # Use bash for inline if-statements in arch_patch target
 SHELL:=bash
+OWNER:=jupyter
+VERSION:=devel
 ARCH:=$(shell uname -m)
 OWNER?=jupyter
 
@@ -49,8 +51,8 @@ arch_patch/%: ## apply hardware architecture specific patches to the Dockerfile
 	fi
 
 build/%: DARGS?=
-build/%: ## build the latest image for a stack
-	docker build $(DARGS) --rm --force-rm -t $(OWNER)/$(notdir $@):latest ./$(notdir $@)
+build/%: ## build the $(VERSION) image for a stack
+	docker build $(DARGS) --rm --force-rm -t $(OWNER)/$(notdir $@):$(VERSION) ./$(notdir $@)
 	@echo -n "Built image size: "
 	@docker images $(OWNER)/$(notdir $@):latest --format "{{.Size}}"
 
@@ -74,7 +76,7 @@ dev/%: ARGS?=
 dev/%: DARGS?=-e JUPYTER_ENABLE_LAB=yes
 dev/%: PORT?=8888
 dev/%: ## run a foreground container for a stack
-	docker run -it --rm -p $(PORT):8888 $(DARGS) $(OWNER)/$(notdir $@) $(ARGS)
+	docker run -it --rm -p $(PORT):8888 $(DARGS) $(OWNER)/$(notdir $@):$(VERSION) $(ARGS)
 
 dev-env: ## install libraries required to build docs and run tests
 	@pip install -r requirements-dev.txt
